@@ -1,4 +1,4 @@
-# scopeseq-v2
+# SCOPEseq-v2
 
 # Installation
 ### Environment & Dependencies
