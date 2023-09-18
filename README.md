@@ -1,4 +1,6 @@
 # SCOPEseq-v2
+# About
+This is an updated scopeseq Python package with new functions, such as variable gene identification using scHPF matrix factorization, UMAP embedding, Phenograph clustering, maliganent tumor cell identification using CNV estimation, differential gene expression using Mann–Whitney U test. 
 
 # Installation
 ### Environment & Dependencies
