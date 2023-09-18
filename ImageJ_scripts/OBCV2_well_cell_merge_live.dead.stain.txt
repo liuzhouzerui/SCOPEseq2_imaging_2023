@@ -1,0 +1,48 @@
+// This ImageJ script is used for generating merged RGB images from two fluorescence channels (live and dead stain) to filter out doublets
+
+cyc_dir = "dir\\";
+cell = "cell\\";
+crop_width = 80; //unit in pixels
+
+current_file_name = "Results.csv";
+open(cyc_dir + current_file_name);
+
+num_of_wells_to_process = getValue("results.count"); // use nResults in real analysis and use a small number for testing the code
+
+tmp_dir_1 = cyc_dir + cell_dir + "TRITC/";
+tmp_dir_2 = cyc_dir + cell_dir + "CY5/";
+tmp_dir_merge = cyc_dir + cell_dir + "merge/";
+tmp_dir_merge_RGB = cyc_dir + cell_dir + "merge_RGB/";
+
+File.makeDirectory(tmp_dir_merge);
+File.makeDirectory(tmp_dir_merge_RGB);
+
+for(i=0;i<num_of_wells_to_process;i++){
+	tmp_filename_1 = getResultString("index",i) + ".TRITC.tif";
+	tmp_filename_2 = getResultString("index",i) + ".CY5.tif";
+	tmp_filename_merge = getResultString("index",i) + ".tif";
+
+	open(tmp_dir_1 + tmp_filename_1);
+	open(tmp_dir_2 + tmp_filename_2);
+
+	imageCalculator("Max create", tmp_filename_1,tmp_filename_2);
+	selectWindow("Result of " + tmp_filename_1);
+	saveAs("Tiff", tmp_dir_merge + tmp_filename_merge);
+	selectWindow(tmp_filename_merge);
+	run("RGB Color");
+
+	saveAs("Tiff", tmp_dir_merge_RGB + tmp_filename_merge);
+	selectWindow(tmp_filename_merge);
+	close();
+
+	selectWindow(tmp_filename_1);
+	close();
+
+	selectWindow(tmp_filename_2);
+	close();
+
+}
+
+
+selectWindow("Results");
+run("Close");

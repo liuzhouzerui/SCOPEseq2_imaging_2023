@@ -1,0 +1,140 @@
+// This ImageJ script is used to measure cell fluorescence intensities. 
+
+cyc_dir = "dir\\";
+cell_dir = "cell\\";
+well_dir = "well\\";
+size_range = "5-5000"; // size range of the cells in pixels
+wait_time = 50; // in milisecond
+run("Set Measurements...", "area mean standard modal min centroid center perimeter bounding fit shape feret's integrated median skewness kurtosis area_fraction stack redirect=None decimal=9");
+
+current_file_name = "Results.csv";
+open(cyc_dir + well_dir + current_file_name);
+num_of_wells_to_process = getValue("results.count"); // use nResults in real analysis and use a small number for testing the code
+selectWindow("Results");
+run("Close");
+
+tmp_dir_1 = cyc_dir + cell_dir + "GFP/intensity_data/";
+File.makeDirectory(tmp_dir_1);
+tmp_dir_2 = cyc_dir + cell_dir + "TRITC/intensity_data/";
+File.makeDirectory(tmp_dir_2);
+tmp_dir_3 = cyc_dir + cell_dir + "CY5/intensity_data/";
+File.makeDirectory(tmp_dir_3);
+tmp_dir_merge = cyc_dir + cell_dir + "merge/intensity_data/";
+File.makeDirectory(tmp_dir_merge);
+current_dir_1 = cyc_dir + cell_dir + "GFP/";
+
+current_dir_2 = cyc_dir + cell_dir + "TRITC/";
+
+current_dir_3 = cyc_dir + cell_dir + "CY5/";
+
+current_dir_merge = cyc_dir + cell_dir + "merge/";
+
+for(i=0;i<num_of_wells_to_process;i++){
+
+	open(cyc_dir + well_dir + current_file_name);
+	tmp_filename_1 = getResultString("index",i) + ".GFP.tif";
+
+	tmp_filename_2 = getResultString("index",i) + ".TRITC.tif";
+
+	tmp_filename_3 = getResultString("index",i) + ".CY5.tif";
+
+	tmp_filename_merge = getResultString("index",i) + ".tif";
+
+	selectWindow("Results");
+	run("Close");
+
+	wait(wait_time);
+	open(current_dir_merge + tmp_filename_merge);
+	run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+	setAutoThreshold("Default dark");
+	run("Analyze Particles...", "size=" + size_range +" add");
+	array1 = newArray("0");
+	for (j=1;j<roiManager("count");j++){
+        	array1 = Array.concat(array1,j);
+	}
+	roiManager("select", array1);
+	wait(wait_time);
+	run("Make Inverse");
+	roiManager("Add");
+	wait(wait_time);
+	selectWindow(tmp_filename_merge);
+	run("Close");
+	wait(wait_time);
+	roiManager("Save", tmp_dir_merge + tmp_filename_merge + "_RoiSet.zip");
+	open(current_dir_1 + tmp_filename_1);
+	run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+	selectWindow(tmp_filename_1);
+	roiManager("Show All");
+	array1 = Array.concat(array1,j);
+	roiManager("select", array1);
+	tmp_flag =0;
+	while(tmp_flag <=0){	
+		roiManager("Measure");
+		if(isOpen("Results")){
+			tmp_flag = 1;
+		}
+	}
+	if(isOpen("Exception")){
+		selectWindow("Exception");
+		run("Close");
+	}
+	saveAs("Results", tmp_dir_1 + tmp_filename_1 + "_Results.xls");
+	selectWindow("Results");
+	run("Close");
+	wait(wait_time);
+	selectWindow(tmp_filename_1);
+	run("Close");
+	wait(wait_time);
+
+	open(current_dir_2 + tmp_filename_2);
+	run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+	selectWindow(tmp_filename_2);
+	roiManager("Show All");
+	tmp_flag =0;
+	while(tmp_flag <=0){	
+		roiManager("Measure");
+		if(isOpen("Results")){
+			tmp_flag = 1;
+		}
+	}
+	if(isOpen("Exception")){
+		selectWindow("Exception");
+		run("Close");
+	}
+	saveAs("Results", tmp_dir_2 + tmp_filename_2 + "_Results.xls");
+	selectWindow("Results");
+	run("Close");
+	wait(wait_time);
+	selectWindow(tmp_filename_2);
+	run("Close");
+	wait(wait_time);
+
+	open(current_dir_3 + tmp_filename_3);
+	run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+	selectWindow(tmp_filename_3);
+	roiManager("Show All");
+	tmp_flag =0;
+	while(tmp_flag <=0){	
+		roiManager("Measure");
+		if(isOpen("Results")){
+			tmp_flag = 1;
+		}
+	}
+	if(isOpen("Exception")){
+		selectWindow("Exception");
+		run("Close");
+	}
+	saveAs("Results", tmp_dir_3 + tmp_filename_3 + "_Results.xls");
+	selectWindow("Results");
+	run("Close");
+	wait(wait_time);
+	selectWindow(tmp_filename_3);
+	run("Close");
+	wait(wait_time);
+
+	selectWindow("ROI Manager");
+	run("Close");
+	wait(wait_time);
+}
+
+

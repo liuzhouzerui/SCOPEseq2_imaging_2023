@@ -1,0 +1,90 @@
+// This ImageJ script is used for measuring average intensity of every fluorescence imaging channel and every single well in the microwell device.
+
+cyc_dir = "dir\\"; // the directory where all the tiff files for cell loading scan are stored.
+wait_time = 1000; // in milisecond
+
+// create a folder to store the output files
+tmp_dir = cyc_dir + "intensity_data\\";
+File.makeDirectory(tmp_dir);
+
+//***identify individual wells***
+// open the bright field image
+tmp_file_name = "ChannelGFP,TRITC,CY5,Mono_Seq0000_Mono.tif";
+open(cyc_dir+tmp_file_name);
+// clear scale
+run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+//convert image to 8 bit
+run("8-bit");
+//run auto local threshold
+run("Auto Local Threshold", "method=Bernsen radius=15 parameter_1=30 parameter_2=0");
+// detect individual wells with particle analyzer
+run("Analyze Particles...", "size=2000-7000 circularity=0.5-1.00 exclude include add");
+//close the thresholded bright field image
+selectWindow(tmp_file_name);
+run("Close");
+//save the identified objects into file
+roiManager("Save", tmp_dir + tmp_file_name + "wells_RoiSet.zip");
+// set the parameters to be measured
+run("Set Measurements...", "area mean standard modal min centroid center perimeter bounding fit shape feret's integrated median area_fraction stack redirect=None decimal=9");
+
+//***perform measurements on individual wells, c2***
+// open the channel 2 image of the cell scan
+tmp_file_name2 = "ChannelGFP,TRITC,CY5,Mono_Seq0000_TRITC.tif";
+open(cyc_dir+tmp_file_name2);
+//clear scale
+run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+// measure intensities of individual identified objects and save the results to file and close the results window and then close the image file
+selectWindow(tmp_file_name2);
+roiManager("Show All");
+roiManager("Measure");
+saveAs("Results", tmp_dir + tmp_file_name2 + "_Results.xls");
+selectWindow("Results");
+run("Close");
+wait(wait_time);
+selectWindow(tmp_file_name2);
+run("Close");
+wait(wait_time);
+
+//***perform measurements on individual wells, c3***
+// open the channel 3 image of the cell scan
+tmp_file_name3 = "ChannelGFP,TRITC,CY5,Mono_Seq0000_CY5.tif";
+open(cyc_dir+tmp_file_name3);
+//clear scale
+run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+// measure intensities of individual identified objects and save the results to file and close the results window and then close the image file
+selectWindow(tmp_file_name3);
+roiManager("Show All");
+roiManager("Measure");
+saveAs("Results", tmp_dir + tmp_file_name3 + "_Results.xls");
+selectWindow("Results");
+run("Close");
+wait(wait_time);
+selectWindow(tmp_file_name3);
+run("Close");
+wait(wait_time);
+
+//***perform measurements on individual wells, c4***
+// open the channel 3 image of the cell scan
+tmp_file_name3 = "ChannelGFP,TRITC,CY5,Mono_Seq0000_GFP.tif";
+open(cyc_dir+tmp_file_name3);
+//clear scale
+run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+// measure intensities of individual identified objects and save the results to file and close the results window and then close the image file
+selectWindow(tmp_file_name3);
+roiManager("Show All");
+roiManager("Measure");
+saveAs("Results", tmp_dir + tmp_file_name3 + "_Results.xls");
+selectWindow("Results");
+run("Close");
+wait(wait_time);
+selectWindow(tmp_file_name3);
+run("Close");
+wait(wait_time);
+
+// close the ROI manager window
+selectWindow("ROI Manager");
+run("Close");
+wait(wait_time);
+// close log window
+selectWindow("Log");
+run("Close");

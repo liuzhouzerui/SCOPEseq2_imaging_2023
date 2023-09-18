@@ -1,0 +1,147 @@
+// This ImageJ script is used for generating fluorescence intensity measurements from bead optical demultiplexing in SCOPE-seq2 
+
+cyc_dir = "dir\\bead\\"; // the directory where all the tiff files are stored. Images from each channel has its own folder. bg scans and probe scans are stored in separate folders as well
+num_cycle = 8; // number of total cycles of demulitplexing reactions
+wait_time = 1000; // in milisecond
+size_range = "100-5000";  // size range of the beads in pixels, depending on the magnification of the objective, binning factor etc
+circularity = "0.10-1.00" //circularity of the beads, to remove the shadow of the well
+run("Set Measurements...", "area mean standard modal min centroid center perimeter bounding fit shape feret's integrated median area_fraction stack redirect=None decimal=9"); // set the features to measure
+
+// create a folder to store the output files
+tmp_dir = cyc_dir + "intensity_data\\";
+File.makeDirectory(tmp_dir);
+
+
+// loop though all demultiplexing cycles for the bg scan
+for(i=0;i<num_cycle;i++){
+	// open the bright field image of the probe scan
+	tmp_index = i*2 +100000;
+	tmp_index_str = "_" + tmp_index;
+	dir = "count0000"+i+"_channelcy3,cy5,bf_seq00"+substring(tmp_index_str,5,7)+"\\";
+	tmp_file_name = "count0000"+i+"_channelcy3,cy5,bf_seq00"+substring(tmp_index_str,5,7)+"_bf.tif";
+	//save the identified objects into file
+	open(cyc_dir+tmp_file_name);
+	//clear scale
+	run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+	//threshold the image
+	setThreshold(0,8000);
+	run("Threshold...");
+	setOption("BlackBackground", false);
+	run("Convert to Mask");
+	//identify individual beads
+	run("Analyze Particles...", "size=" + size_range +" circularity=" + circularity + " exclude include add");
+	//close the thresholded bright field image
+	selectWindow(tmp_file_name);
+	run("Close");
+	//save the identified objects into file
+	roiManager("Save", tmp_dir + tmp_file_name + "_RoiSet.zip");
+
+	// open the channel 2 image of the probe scan
+	tmp_file_name2 = "count0000"+i+"_channelcy3,cy5,bf_seq00"+substring(tmp_index_str,5,7)+"_cy3.tif";
+	open(cyc_dir+tmp_file_name2);
+	//clear scale
+	run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+	// measure intensities of individual identified objects and save the results to file and close the results window and then close the image file
+	selectWindow(tmp_file_name2);
+	roiManager("Show All");
+	roiManager("Measure");
+	saveAs("Results", tmp_dir + tmp_file_name2 + "_Results.xls");
+	selectWindow("Results");
+	run("Close");
+	wait(wait_time);
+	selectWindow(tmp_file_name2);
+	run("Close");
+	wait(wait_time);
+
+
+	// open the channel 3 image of the bg scan
+	tmp_file_name3 = "count0000"+i+"_channelcy3,cy5,bf_seq00"+substring(tmp_index_str,5,7)+"_cy5.tif";
+	open(cyc_dir+tmp_file_name3);
+	//clear scale
+	run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+	// measure intensities of individual identified objects and save the results to file and close the results window and then close the image file
+	selectWindow(tmp_file_name3);
+	roiManager("Show All");
+	roiManager("Measure");
+	saveAs("Results", tmp_dir + tmp_file_name3 + "_Results.xls");
+	selectWindow("Results");
+	run("Close");
+	wait(wait_time);
+	selectWindow(tmp_file_name3);
+	run("Close");
+	wait(wait_time);
+
+	// close the ROI manager window
+	selectWindow("ROI Manager");
+	run("Close");
+	wait(wait_time);
+	
+}
+
+// loop though all demultiplexing cycles for the probe scan
+for(i=0;i<num_cycle;i++){
+	// open the bright field image of the probe scan
+	tmp_index = i*2 + 1+100000;
+	tmp_index_str = "_" + tmp_index;
+	dir = "count0000"+i+"_channelcy3,cy5,bf_seq00"+substring(tmp_index_str,5,7)+"\\";
+	tmp_file_name = "count0000"+i+"_channelcy3,cy5,bf_seq00"+substring(tmp_index_str,5,7)+"_bf.tif";
+	//save the identified objects into file
+	open(cyc_dir+tmp_file_name);
+	//clear scale
+	run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+	//threshold the image
+	setThreshold(0,8000);
+	//run("Threshold...");
+	setOption("BlackBackground", false);
+	run("Convert to Mask");
+	//identify individual beads
+	run("Analyze Particles...", "size=" + size_range +" circularity=" + circularity + " exclude include add");
+	//close the thresholded bright field image
+	selectWindow(tmp_file_name);
+	run("Close");
+	//save the identified objects into file
+	roiManager("Save", tmp_dir + tmp_file_name + "_RoiSet.zip");
+
+	// open the channel 2 image of the probe scan
+	tmp_file_name2 = "count0000"+i+"_channelcy3,cy5,bf_seq00"+substring(tmp_index_str,5,7)+"_cy3.tif";
+	open(cyc_dir+tmp_file_name2);
+	//clear scale
+	run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+	// measure intensities of individual identified objects and save the results to file and close the results window and then close the image file
+	selectWindow(tmp_file_name2);
+	roiManager("Show All");
+	roiManager("Measure");
+	saveAs("Results", tmp_dir + tmp_file_name2 + "_Results.xls");
+	selectWindow("Results");
+	run("Close");
+	wait(wait_time);
+	selectWindow(tmp_file_name2);
+	run("Close");
+	wait(wait_time);
+
+	// open the channel 3 image of the probe scan
+	tmp_file_name3 = "count0000"+i+"_channelcy3,cy5,bf_seq00"+substring(tmp_index_str,5,7)+"_cy5.tif";
+	open(cyc_dir+tmp_file_name3);
+	//clear scale
+	run("Set Scale...", "distance=0 known=0 pixel=1 unit=pixel");
+	// measure intensities of individual identified objects and save the results to file and close the results window and then close the image file
+	selectWindow(tmp_file_name3);
+	roiManager("Show All");
+	roiManager("Measure");
+	saveAs("Results", tmp_dir + tmp_file_name3 + "_Results.xls");
+	selectWindow("Results");
+	run("Close");
+	wait(wait_time);
+	selectWindow(tmp_file_name3);
+	run("Close");
+	wait(wait_time);
+
+	// close the ROI manager window
+	selectWindow("ROI Manager");
+	run("Close");
+	wait(wait_time);
+	
+}
+
+
+
